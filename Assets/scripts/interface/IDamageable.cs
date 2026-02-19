@@ -4,6 +4,6 @@ public interface IDamageable
 {
 
     void Damage(float damage);
-    void Die();
+    void Die(int stage = 0);
 
 }

@@ -11,12 +11,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         Health -= damage;
         if (Health <= 0)
         {
-            Die();
+            Die(0);
         }
         GameEventHandler.Instance.OnPlayerTakeDamage?.Invoke(Health);
     }
 
-    public void Die()
+    public void Die(int _)
     {
         GameEventHandler.Instance.OnGameOver?.Invoke();
         AudioManager.Instance.PlayerSfx(DieAudio);

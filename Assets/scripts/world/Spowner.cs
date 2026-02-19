@@ -5,43 +5,50 @@ public class Spawner : MonoBehaviour
 {
     [SerializeField] private float SpawnForce = 10f;
     [SerializeField] private GameObject[] Asteroids;
-    [SerializeField] private int Rate = 5, HardLimit = 100;
+    [SerializeField] private Vector2Int Rate = new(2, 15);
+    [SerializeField] private int HardLimit = 100;
 
+    private float _rate;
     private int _spawned;
     private float _hardness = 1;
 
     void Start()
     {
-        GameEventHandler.Instance.OnAstroDestroy += _ => CalcSpawned();
+        GameEventHandler.Instance.OnAstroDestroy += stage => CalcSpawned(stage);
         GameEventHandler.Instance.OnForceAstroDestroy += RemoveDeletedAsteroids;
 
+        _rate = Rate.x;
         StartCoroutine(Spawn());
     }
 
     void OnEnable()
     {
-        GameEventHandler.Instance.OnAstroDestroy += _ => CalcSpawned();
+        GameEventHandler.Instance.OnAstroDestroy += stage => CalcSpawned(stage);
         GameEventHandler.Instance.OnForceAstroDestroy += RemoveDeletedAsteroids;
     }
 
     void OnDisable()
     {
-        GameEventHandler.Instance.OnAstroDestroy -= _ => CalcSpawned();
+        GameEventHandler.Instance.OnAstroDestroy -= stage => CalcSpawned(stage);
         GameEventHandler.Instance.OnForceAstroDestroy -= RemoveDeletedAsteroids;
     }
 
     void OnDestroy()
     {
-        GameEventHandler.Instance.OnAstroDestroy -= _ => CalcSpawned();
+        GameEventHandler.Instance.OnAstroDestroy -= stage => CalcSpawned(stage);
         GameEventHandler.Instance.OnForceAstroDestroy -= RemoveDeletedAsteroids;
     }
 
     private void RemoveDeletedAsteroids() => _spawned--;
 
-    private void CalcSpawned()
+    private void CalcSpawned(int stage)
     {
+        // the stage zero doesn't spawn astro so we dont count it with the spawning stages
+        if (stage == 0)
+            return;
+
         _spawned++;
-        _hardness -= 0.02f;
+        _hardness += 0.02f;
     }
 
     private IEnumerator Spawn()
@@ -68,7 +75,7 @@ public class Spawner : MonoBehaviour
 
             _spawned++;
         }
-        yield return new WaitForSeconds(1f / Rate / Mathf.Max(_hardness, 0.001f));
+        yield return new WaitForSeconds(1f / Mathf.Clamp(_rate * _hardness, Rate.x, Rate.y));
         StartCoroutine(Spawn());
     }
 }

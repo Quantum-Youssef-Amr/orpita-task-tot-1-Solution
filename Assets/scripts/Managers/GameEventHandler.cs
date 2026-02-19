@@ -6,6 +6,8 @@ public class GameEventHandler : MonoBehaviour
 {
     public static GameEventHandler Instance { get; private set; }
 
+    public Action<int> ScreenShake;
+
     public Action<int> OnAstroDestroy;
     public Action OnForceAstroDestroy;
 
@@ -26,6 +28,8 @@ public class GameEventHandler : MonoBehaviour
 
     private void FreeOldReferences()
     {
+        ScreenShake = null;
+
         OnAstroDestroy = null;
         OnForceAstroDestroy = null;
 
